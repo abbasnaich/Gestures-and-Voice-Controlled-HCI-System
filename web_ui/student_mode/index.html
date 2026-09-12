@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Mode — Sam</title>
+    <meta name="description"
+        content="Exam / Presentation Mode for Students with Disabilities — voice + gesture controlled" />
+    <link rel="stylesheet" href="style.css" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet" />
+</head>
+
+<body>
+    <canvas id="ambientCanvas" aria-hidden="true"></canvas>
+    <div class="scanline-overlay" aria-hidden="true"></div>
+
+    <header class="top-bar">
+        <div class="top-bar-left">
+            <div class="logo-mark">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+                    <circle cx="14" cy="14" r="12" stroke="url(#logoGradSm)" stroke-width="2" fill="none" />
+                    <path d="M8 14c3-3 6-6 6-6s3 3 6 6-3 6-6 6-6-3-6-6z" stroke="url(#logoGradSm)"
+                        stroke-width="1.2" fill="none" opacity="0.9" />
+                    <defs>
+                        <linearGradient id="logoGradSm" x1="0" y1="0" x2="28" y2="28">
+                            <stop offset="0%" stop-color="#00d4ff" />
+                            <stop offset="100%" stop-color="#7b61ff" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <div class="brand-text">
+                <h1>Differently-able<span class="accent">Persons</span></h1>
+                <p class="brand-sub">Exam · Presentation · Accessibility</p>
+            </div>
+        </div>
+        <div class="top-bar-center">
+            <div class="status-pill">
+                <span class="pulse-dot"></span>
+                <span id="statusText">Ready for voice &amp; gesture</span>
+            </div>
+        </div>
+        <div class="top-bar-right">
+            <div class="vitals-mini">
+                <div class="vital-item">
+                    <span class="vital-label">Local</span>
+                    <span class="vital-value" id="clockDisplay">—:—</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-layout">
+        <aside class="sidebar">
+            <div class="sidebar-section">
+                <h3 class="section-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                    </svg>
+                    Student
+                </h3>
+                <div class="student-card">
+                    <div class="student-avatar" aria-hidden="true">SM</div>
+                    <div class="student-details">
+                        <strong>Sam</strong>
+                        <span class="student-id">Grade 5 · Assistive access</span>
+                        <span class="student-meta">Voice + gesture only</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="section-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="4" width="18" height="14" rx="2" />
+                        <path d="M8 20h8" />
+                    </svg>
+                    Modes
+                </h3>
+                <div class="mode-list" id="modeList">
+                    <button class="mode-item active" data-mode="home" id="modeHome">
+                        <span class="mode-icon">🏠</span>
+                        <div class="mode-info"><strong>Home</strong><small>Choose a mode</small></div>
+                    </button>
+                    <button class="mode-item" data-mode="exam" id="modeExam">
+                        <span class="mode-icon">📝</span>
+                        <div class="mode-info"><strong>Exam</strong><small>Topics + MCQs</small></div>
+                    </button>
+                    <button class="mode-item" data-mode="present" id="modePresent">
+                        <span class="mode-icon">📽️</span>
+                        <div class="mode-info"><strong>Presentation</strong><small>PPTX with voice</small></div>
+                    </button>
+                </div>
+            </div>
+
+            <div class="sidebar-section gesture-help">
+                <h3 class="section-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                        <path d="M13.73 21a2 2 0 01-3.46 0" />
+                    </svg>
+                    Touchless guide
+                </h3>
+                <div class="gesture-hints">
+                    <div class="g-hint"><span class="g-icon">👆</span><span>Hold on cards/options</span></div>
+                    <div class="g-hint"><span class="g-icon">〰</span><span>Wave to change highlight</span></div>
+                    <div class="g-hint"><span class="g-icon">🎤</span><span>V to toggle voice</span></div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="viewer-main">
+            <div class="main-inner">
+                <section class="panel-elevated" id="homeView" data-view="home">
+                    <h3 class="section-title panel-title-inline">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 2l9 8-1.5 1.5L12 5 4.5 11.5 3 10z" />
+                            <path d="M5 10v10h14V10" />
+                        </svg>
+                        Welcome
+                    </h3>
+                    <p class="p-lead">Start an <strong>exam</strong> or open a <strong>presentation</strong> using only voice
+                        and gesture.</p>
+                    <div class="home-actions" id="homeActions">
+                        <button class="action-card" data-action="goExam" id="goExamCard">
+                            <div class="action-icon">📝</div>
+                            <div class="action-body">
+                                <strong>Start Exam</strong>
+                                <small>Choose a topic then answer 5 questions</small>
+                            </div>
+                            <span class="dwell-ring" aria-hidden="true"></span>
+                        </button>
+                        <button class="action-card" data-action="goPresent" id="goPresentCard">
+                            <div class="action-icon">📽️</div>
+                            <div class="action-body">
+                                <strong>Open Presentation</strong>
+                                <small>Import PPTX, then say next / previous</small>
+                            </div>
+                            <span class="dwell-ring" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                    <div class="helper-row">
+                        <div class="helper-pill"><span class="k">Voice</span><span class="v">“Exam”, “Presentation”, “Next”,
+                                “Option A”, “Submit”, “Home”</span></div>
+                        <div class="helper-pill"><span class="k">Gesture</span><span class="v">Hold on targets to select</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel-elevated" id="examView" data-view="exam" hidden>
+                    <div class="view-head">
+                        <h3 class="section-title panel-title-inline">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />
+                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
+                            </svg>
+                            Exam
+                        </h3>
+                        <div class="view-tools">
+                            <button class="mini-btn" id="examResetBtn" title="Reset exam">Reset</button>
+                        </div>
+                    </div>
+
+                    <div id="examStageTopics">
+                        <p class="p-lead">Choose a topic. Hold on a topic card to start.</p>
+                        <div class="topic-grid" id="topicGrid"></div>
+                    </div>
+
+                    <div id="examStageQuestion" hidden>
+                        <div class="question-meta">
+                            <span class="meta-tag" id="examTopicTag">TOPIC</span>
+                            <span class="meta-title" id="questionProgress">Question 1 of 5</span>
+                        </div>
+                        <div class="question-card">
+                            <h2 class="question-text" id="questionText">—</h2>
+                            <div class="options-grid" id="optionsGrid"></div>
+                        </div>
+                        <div class="exam-footer">
+                            <button class="mini-btn" id="prevQBtn">Previous</button>
+                            <button class="mini-btn" id="nextQBtn">Next</button>
+                            <button class="mini-btn primary" id="submitExamBtn">Submit</button>
+                        </div>
+                    </div>
+
+                    <div id="examStageResult" hidden>
+                        <div class="result-card">
+                            <div class="result-score" id="scoreText">—</div>
+                            <p class="result-line" id="scoreLine">—</p>
+                            <button class="mini-btn primary" id="backToTopicsBtn">Back to topics</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel-elevated" id="presentView" data-view="present" hidden>
+                    <div class="view-head">
+                        <h3 class="section-title panel-title-inline">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="3" y="4" width="18" height="14" rx="2" />
+                                <path d="M8 20h8" />
+                            </svg>
+                            Presentation
+                        </h3>
+                        <div class="view-tools">
+                            <label class="file-btn mini-btn primary" for="pptInput">Import PPTX</label>
+                            <input type="file" id="pptInput" accept=".pptx" hidden />
+                            <button class="mini-btn" id="closePresentationBtn">Close</button>
+                        </div>
+                    </div>
+
+                    <p class="panel-microcopy" id="pptStatus">Import a PowerPoint file. Use voice: “next slide”, “previous
+                        slide”, “close”.</p>
+                    <div class="ppt-stage">
+                        <div class="ppt-nav">
+                            <button class="mini-btn" id="pptPrevBtn">Previous</button>
+                            <div class="ppt-count" id="pptCount">—</div>
+                            <button class="mini-btn" id="pptNextBtn">Next</button>
+                        </div>
+                        <div class="ppt-canvas" id="pptCanvas" aria-label="Presentation viewer"></div>
+                    </div>
+                </section>
+
+                <section class="panel-elevated voice-row">
+                    <button type="button" class="tool-btn voice-btn" id="voiceToggle" aria-pressed="false" title="Voice (V)">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" />
+                            <path d="M19 10v2a7 7 0 01-14 0v-2" />
+                            <line x1="12" y1="19" x2="12" y2="23" />
+                            <line x1="8" y1="23" x2="16" y2="23" />
+                        </svg>
+                        <span id="voiceToggleLabel">Voice off</span>
+                    </button>
+                    <div class="voice-hint">
+                        <p>Say <strong>home</strong> to return. In exams say <strong>option A/B/C/D</strong> and <strong>next</strong>.
+                            In presentations say <strong>next slide</strong> / <strong>previous slide</strong>.</p>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <aside class="right-panel">
+            <div class="sidebar-section">
+                <h3 class="section-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                    </svg>
+                    Activity
+                </h3>
+                <div class="panel-row">
+                    <p class="panel-microcopy">Exam progress and presentation actions appear here.</p>
+                    <button type="button" class="mini-btn" id="resetLogBtn">Reset</button>
+                </div>
+                <ul class="request-log" id="activityLog" aria-live="polite"></ul>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="section-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </svg>
+                    Focus
+                </h3>
+                <div class="active-request-card" id="focusCard">
+                    <span class="active-label" id="focusLabel">Home</span>
+                    <span class="active-time" id="focusMeta">—</span>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <div class="toast" id="toast" role="alert" hidden></div>
+
+    <!-- PPTX: only JSZip needed — we parse the PPTX ZIP ourselves -->
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+
+    <script src="student-mode.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Sharpen AutoCare Control</title>
+    <meta name="description"
+        content="Sharpen AutoCare Control — sterile, touch-free gesture and voice control for healthcare environments.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="chatbot.css">
+    <script src="/eel.js"></script>
+</head>
+
+<body>
+    <!-- Background Elements -->
+    <div class="site-bg">
+        <img src="assets/hero_bg.png" class="bg-hero overlay-blur" alt="Background">
+        <div class="bg-gradient"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="top-nav glass-panel">
+        <div class="nav-brand">
+            <span class="logo-mark">🤖</span>
+            <h1>Sharpen AutoCare <span class="accent">Control</span></h1>
+        </div>
+        <div class="nav-status">
+            <span class="status-dot"></span> System Ready
+        </div>
+    </nav>
+
+    <!-- Main Layout — Single Viewport, Two Columns -->
+    <main class="main-layout">
+
+        <!-- Left Column: Hero Content -->
+        <section class="sec-hero">
+            <div class="hero-content" data-aos="fade-up">
+                <div class="badge">Healthcare Vanguard Edition</div>
+                <h2 class="title-main">Next-Generation <br>Human–Computer Interaction</h2>
+                <p class="subtitle-main">Sterile, touch-free operation for operating rooms, patient bedsides, and
+                    specialized medical education environments.</p>
+
+                <div class="hero-actions">
+                    <button id="startButton" class="btn-primary">
+                        <span class="btn-icon">🖐</span>
+                        Activate Gesture Control
+                    </button>
+                    <button id="voiceButton" class="btn-secondary">
+                        <span class="btn-icon">🎤</span>
+                        Activate Voice Commands
+                    </button>
+                    <!-- <p class="hint">Press ESC strictly anytime to safely sequence exit or cancel commands.</p> -->
+                </div>
+            </div>
+            <p class="hero-footer">Powered By Sharpen Ai</p>
+        </section>
+
+        <!-- Right Column: Modules Sidebar -->
+        <aside class="modules-sidebar" data-aos="fade-up">
+            <div class="sidebar-header">
+                <div class="sidebar-label">System Modules</div>
+                <p class="sidebar-sub">Select an integrated application to proceed</p>
+            </div>
+
+            <div class="module-stack">
+
+                <!-- MedVision 3D -->
+                <div class="module-card glass-panel" id="openMedViewer" title="Open MedVision 3D Medical Viewer">
+                    <div class="card-top">
+                        <div class="card-icon-wrap">
+                            <div class="card-icon">🩻</div>
+                        </div>
+                        <div class="card-meta">
+                            <h4>MedVision 3D</h4>
+                            <p>Interact with DICOM X-rays and 3D medical imaging touch-free during highly sterile
+                                procedures.</p>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        Launch Module <span class="arrow">→</span>
+                    </div>
+                </div>
+
+                <!-- Patient Dashboard -->
+                <div class="module-card glass-panel" id="openPatientBoard" title="Open Smart Bedside Controller">
+                    <div class="card-top">
+                        <div class="card-icon-wrap">
+                            <div class="card-icon">🛏️</div>
+                        </div>
+                        <div class="card-meta">
+                            <h4>Patient Dashboard</h4>
+                            <p>Smart bedside controller allowing mobility-impaired patients to request care and room
+                                control seamlessly.</p>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        Launch Module <span class="arrow">→</span>
+                    </div>
+                </div>
+
+                <!-- Differently-Able Persons / Student Mode -->
+                <div class="module-card glass-panel" id="openStudentMode" title="Open Exam / Presentation Mode">
+                    <div class="card-top">
+                        <div class="card-icon-wrap">
+                            <div class="card-icon">🎓</div>
+                        </div>
+                        <div class="card-meta">
+                            <h4>Differently-Able Persons</h4>
+                            <p>Specialized examinations and presentations operated entirely via dwell selections and
+                                voice patterns.</p>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        Launch Module <span class="arrow">→</span>
+                    </div>
+                </div>
+
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- ── Floating toggle button ── -->
+    <button id="chatbot-toggle" aria-label="Open Medical Records Assistant">
+        <span class="toggle-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+            </svg>
+        </span>
+        <span class="toggle-badge" id="unread-badge" hidden>1</span>
+    </button>
+
+    <!-- ── Chat panel ── -->
+    <div id="chatbot-container" role="dialog" aria-label="Medical Records Assistant" aria-modal="true">
+
+        <!-- Header -->
+        <div class="chat-header">
+            <div class="header-left">
+                <div class="bot-avatar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                    </svg>
+                </div>
+                <div class="header-info">
+                    <span class="bot-name">Patient Records</span>
+                    <span class="bot-status"><span class="status-dot"></span>Online</span>
+                </div>
+            </div>
+            <button id="close-chat" aria-label="Close chat">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Messages area -->
+        <div id="chat-messages" role="log" aria-live="polite" aria-label="Chat messages">
+        </div>
+
+        <!-- Typing indicator -->
+        <div id="typing-indicator" hidden>
+            <div class="typing-bubble">
+                <span></span><span></span><span></span>
+            </div>
+        </div>
+
+        <!-- Input row -->
+        <div class="chat-input-row">
+            <input type="text" id="chat-input" placeholder="Ask about patient records…" autocomplete="off"
+                aria-label="Message input" maxlength="500" />
+            <button id="send-btn" aria-label="Send message">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <line x1="22" y1="2" x2="11" y2="13" />
+                    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

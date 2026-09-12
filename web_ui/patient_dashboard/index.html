@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bedside Care — Alex</title>
+    <meta name="description" content="Smart Bedside Controller — gesture and voice requests for patients">
+    <link rel="stylesheet" href="style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <canvas id="ambientCanvas" aria-hidden="true"></canvas>
+    <div class="scanline-overlay" aria-hidden="true"></div>
+
+    <!-- Continuous emergency: red wave + popup card (until cancel) -->
+    <div id="emergencyLayer" class="emergency-layer" hidden aria-hidden="true">
+        <div class="emergency-tint"></div>
+        <div class="emergency-wave" aria-hidden="true"></div>
+        <div class="emergency-card" role="alertdialog" aria-modal="true" aria-labelledby="emergencyLine"
+            aria-describedby="emergencyHint">
+            <div class="emergency-card-head">
+                <span class="emergency-badge">Critical</span>
+                <span class="emergency-pulse" aria-hidden="true"></span>
+            </div>
+            <p class="emergency-line" id="emergencyLine">Emergency alert is active — your care team is being notified.</p>
+            <button type="button" class="btn-emergency-cancel" id="emergencyCancelBtn">Cancel alert</button>
+            <p class="emergency-hint" id="emergencyHint">Say <strong>cancel</strong> to turn off sound and alert.</p>
+        </div>
+    </div>
+
+    <header id="topBar" class="top-bar">
+        <div class="top-bar-left">
+            <div class="logo-mark">
+                <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
+                    <circle cx="14" cy="14" r="12" stroke="url(#logoGradPd)" stroke-width="2" fill="none" />
+                    <path d="M9 17c2-4 4-7 5-9 2 3 4 6 5 9" stroke="url(#logoGradPd)" stroke-width="1.5"
+                        stroke-linecap="round" fill="none" />
+                    <defs>
+                        <linearGradient id="logoGradPd" x1="0" y1="0" x2="28" y2="28">
+                            <stop offset="0%" stop-color="#00d4ff" />
+                            <stop offset="100%" stop-color="#7b61ff" />
+                        </linearGradient>
+                    </defs>
+                </svg>
+            </div>
+            <div class="brand-text">
+                <h1 id="brandTitle">Bedside<span class="accent">Care</span></h1>
+                <p class="brand-sub">Patient comfort board</p>
+            </div>
+        </div>
+        <div class="top-bar-center">
+            <div class="status-pill" id="gesturePill">
+                <span class="pulse-dot"></span>
+                <span id="gestureStatusLabel">Gesture tracking ready</span>
+            </div>
+        </div>
+        <div class="top-bar-right">
+            <div class="vitals-mini">
+                <div class="vital-item">
+                    <span class="vital-label">Local</span>
+                    <span class="vital-value" id="clockDisplay">—:—</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="app-layout patient-app">
+        <!-- Left: quick requests (icons match MedVision tool style) -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-section">
+                <h3 class="section-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2l3 6 6 .5-4.5 4 1.5 6.5L12 17l-6 3 1.5-6.5L3 8.5 9 8z" />
+                    </svg>
+                    Patient
+                </h3>
+                <div class="patient-card-compact">
+                    <div class="patient-avatar" aria-hidden="true">A</div>
+                    <div class="patient-details">
+                        <strong id="patientName">Alex</strong>
+                        <span class="patient-id">Room 412 · Isolation</span>
+                        <span class="patient-meta">MRN 2026-11402 · Comfort focus</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="section-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3" />
+                        <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4" />
+                    </svg>
+                    Requests
+                </h3>
+                <nav class="icon-rail" id="iconRail" aria-label="Quick requests">
+                    <button type="button" class="rail-btn" data-action="water" id="btnWater" aria-label="Request water">
+                        <span class="rail-icon" aria-hidden="true">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M12 2.5c-2 4-5 7.2-5 11a5 5 0 1010 0c0-3.8-3-7-5-11z" />
+                            </svg>
+                        </span>
+                        <span class="rail-label">Water</span>
+                        <span class="dwell-ring" aria-hidden="true"></span>
+                    </button>
+                    <button type="button" class="rail-btn" data-action="nurse" id="btnNurse" aria-label="Call nurse">
+                        <span class="rail-icon" aria-hidden="true">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M12 11a4 4 0 100-8 4 4 0 000 8z" />
+                                <path d="M4 22a8 8 0 0116 0" />
+                            </svg>
+                        </span>
+                        <span class="rail-label">Nurse</span>
+                        <span class="dwell-ring" aria-hidden="true"></span>
+                    </button>
+                    <button type="button" class="rail-btn" data-action="light" id="btnLight" aria-label="Adjust light">
+                        <span class="rail-icon" aria-hidden="true">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="4" />
+                                <path
+                                    d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+                            </svg>
+                        </span>
+                        <span class="rail-label">Light</span>
+                        <span class="dwell-ring" aria-hidden="true"></span>
+                    </button>
+                    <button type="button" class="rail-btn" data-action="fan" id="btnFan" aria-label="Fan control">
+                        <span class="rail-icon" aria-hidden="true">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="9" />
+                                <path d="M12 3v4M12 17v4M3 12h4M17 12h4" />
+                                <path d="M5.6 5.6l2.9 2.9M15.5 15.5l2.9 2.9M5.6 18.4l2.9-2.9M15.5 8.5l2.9-2.9" />
+                            </svg>
+                        </span>
+                        <span class="rail-label">Fan</span>
+                        <span class="dwell-ring" aria-hidden="true"></span>
+                    </button>
+                </nav>
+            </div>
+
+            <div class="sidebar-section gesture-help">
+                <h3 class="section-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                    </svg>
+                    Touchless tips
+                </h3>
+                <div class="gesture-hints">
+                    <div class="g-hint"><span class="g-icon">👆</span><span>Hold on icon to request</span></div>
+                    <div class="g-hint"><span class="g-icon">〰</span><span>Wave in menu to change highlight</span></div>
+                    <div class="g-hint"><span class="g-icon">🎤</span><span>V — voice on / off</span></div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Center -->
+        <main class="viewer-main patient-main">
+            <div class="main-inner">
+                <section class="panel-elevated message-area" id="messageArea" role="status" aria-live="polite">
+                    <h3 class="section-title panel-title-inline">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+                        </svg>
+                        Status
+                    </h3>
+                    <p class="message-primary" id="messagePrimary">Move your hand to an icon in the list and hold still to
+                        send a request.</p>
+                    <p class="message-secondary" id="messageSecondary">Wave side to side near <strong>Requests</strong>
+                        to move the highlight, then hold to confirm.</p>
+                </section>
+
+                <section class="panel-elevated patient-summary" aria-label="Patient overview">
+                    <h3 class="section-title panel-title-inline">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+                            <circle cx="12" cy="7" r="4" />
+                        </svg>
+                        Alex today
+                    </h3>
+                    <div class="summary-grid">
+                        <div class="summary-card">
+                            <span class="summary-k">Comfort goal</span>
+                            <span class="summary-v">Hydration · rest · calm breathing</span>
+                        </div>
+                        <div class="summary-card">
+                            <span class="summary-k">Next check-in</span>
+                            <span class="summary-v" id="nextCheckin">—</span>
+                        </div>
+                        <div class="summary-card">
+                            <span class="summary-k">Requests sent</span>
+                            <span class="summary-v"><span id="requestCount">0</span> today</span>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel-elevated comfort-zone" aria-label="Comfort zone">
+                    <h3 class="section-title panel-title-inline">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 21s-7-4.6-9.5-9C.4 8 2.6 5 6 5c2 0 3.2 1.1 4 2 0 0 1.8-2 4.2-2 3.4 0 5.4 3 3.6 7-2.1 4.4-9.8 9-9.8 9z" />
+                        </svg>
+                        Comfort
+                    </h3>
+                    <div class="comfort-content">
+                        <div class="breath-card" aria-hidden="true">
+                            <div class="breath-orb"></div>
+                            <div class="breath-text">
+                                <span>Inhale</span>
+                                <strong>…</strong>
+                                <span>Exhale</span>
+                            </div>
+                        </div>
+                        <div class="comfort-notes">
+                            <p class="comfort-line">You can request help without touching any buttons.</p>
+                            <ul class="comfort-list">
+                                <li><strong>Hold</strong> on a request to send</li>
+                                <li><strong>Wave</strong> to move the highlight</li>
+                                <li><strong>Voice</strong> for Emergency / Cancel</li>
+                            </ul>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel-elevated voice-bar">
+                    <button type="button" class="tool-btn voice-btn" id="voiceToggle" aria-pressed="false"
+                        title="Voice (V)">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 1a3 3 0 00-3 3v8a3 3 0 006 0V4a3 3 0 00-3-3z" />
+                            <path d="M19 10v2a7 7 0 01-14 0v-2" />
+                            <line x1="12" y1="19" x2="12" y2="23" />
+                            <line x1="8" y1="23" x2="16" y2="23" />
+                        </svg>
+                        <span id="voiceToggleLabel">Voice off</span>
+                    </button>
+                    <p class="voice-hint">Say <strong class="em-keyword">Emergency</strong> or <strong
+                            class="em-keyword">Help</strong> for help. While the alert runs, say <strong
+                            class="em-keyword">Cancel</strong> or use the button on the card to stop sound and
+                        flashing.</p>
+                </section>
+            </div>
+        </main>
+
+        <!-- Right: live request log -->
+        <aside class="right-panel" id="rightPanel">
+            <div class="sidebar-section">
+                <h3 class="section-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                    </svg>
+                    Care activity
+                </h3>
+                <div class="panel-row">
+                    <p class="panel-microcopy">Updates as you use voice or gestures. Emergency stays listed until you cancel.</p>
+                    <button type="button" class="mini-btn" id="resetRequestsBtn" title="Clear previous request log">
+                        Reset
+                    </button>
+                </div>
+                <ul class="request-log" id="requestLog" aria-live="polite"></ul>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="section-title">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                    </svg>
+                    Active request
+                </h3>
+                <div class="active-request-card" id="activeRequestCard">
+                    <span class="active-label">None</span>
+                    <span class="active-time" id="activeRequestTime">—</span>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <div class="toast" id="toast" role="alert" hidden></div>
+
+    <script src="patient-dashboard.js"></script>
+</body>
+
+</html>
